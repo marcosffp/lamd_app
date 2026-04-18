@@ -41,10 +41,11 @@ Ao interagir com o ContadorWidget e os ItemCard, foi possível observar comporta
 
 Descreve widgets como descrições imutáveis da interface eles não são a UI, apenas descrevem como ela deve parecer em um dado momento. O StatelessWidget é imutável por definição: recebe parâmetros e os renderiza deterministicamente. Já o StatefulWidget separa o widget (imutável) do seu State (mutável), que persiste entre reconstruções. A reatividade do Flutter se apoia justamente nessa imutabilidade: widgets são baratos de recriar porque não carregam lógica quem carrega é o State.
 
-**Resposta:**
-O StatelessWidget não guarda estado interno ele exibe o que recebe por parâmetro e não muda sozinho. No lab, o ItemCard recebe nome e preço e renderiza esses valores sem nenhuma lógica interna. Já o StatefulWidget consegue guardar e modificar estado interno via setState a própria ListaItensScreen faz isso com _futureItens. Quando o usuário cria um item, o NovoItemScreen executa Navigator.pop(context, true) e a tela pai chama _recarregar() manualmente, disparando um novo GET /itens no servidor e reconstruindo a lista.
 
-O setState se torna uma limitação arquitetural quando o estado precisa ser compartilhado entre telas sem relação direta. Como o estado é local ao widget que o criou, se existisse outra tela no app que também precisasse saber que um item novo foi criado, ela não saberia o estado fica preso dentro do widget. Em um app maior, isso força o desenvolvedor a criar uma cadeia manual de comunicação entre widgets (if (result == true), callbacks, pop com resultado) que escala mal e torna o código difícil de manter, justamente por não existir uma fonte de verdade compartilhada entre as telas.
+**Resposta:**
+
+O StatelessWidget não guarda estado interno ele exibe o que recebe por parâmetro e não muda sozinho. No lab, o ItemCard recebe nome e preço e renderiza esses valores sem nenhuma lógica interna. Já o StatefulWidget consegue guardar e modificar estado interno via setState a própria ListaItensScreen faz isso com _futureItens. Quando o usuário cria um item, o NovoItemScreen executa Navigator.pop(context, true) e a tela pai chama _recarregar() manualmente, disparando um novo GET /itens no servidor e reconstruindo a lista. O setState se torna uma limitação arquitetural quando o estado precisa ser compartilhado entre telas sem relação direta. Como o estado é local ao widget que o criou, se existisse outra tela no app que também precisasse saber que um item novo foi criado, ela não saberia o estado fica preso dentro do widget. Em um app maior, isso força o desenvolvedor a criar uma cadeia manual de comunicação entre widgets (if (result == true), callbacks, pop com resultado) que escala mal e torna o código difícil de manter, justamente por não existir uma fonte de verdade compartilhada entre as telas.
+
 ---
 
 ### Q2 — Desempenho do rebuild
@@ -69,7 +70,9 @@ Ao pressionar o botão do ContadorWidget múltiplas vezes rapidamente, a interfa
 O Flutter opera com três árvores simultâneas: a Widget Tree (objetos Dart leves, descartáveis), a Element Tree (persistente, gerencia o ciclo de vida) e a RenderObject Tree (responsável pelo layout e pintura real na tela). Quando setState é chamado, apenas a Widget Tree é recriada  as outras duas são atualizadas pelo algoritmo de reconciliação (diffing), que compara o widget antigo com o novo e propaga mudanças apenas onde necessário. Esse design é descrito na Flutter Architectural Overview (Flutter Team, docs.flutter.dev, 2026) e é análogo ao que o React faz com o Virtual DOM.
 
 **Resposta:**
+
 Mesmo que o Flutter reconstrua a árvore de widgets a cada setState, isso não causa problema de desempenho porque os widgets são objetos Dart leves que descrevem a interface eles não são a UI em si, e recriar esses objetos é barato. Quem faz o trabalho pesado de renderização é a Element Tree e a RenderObject Tree, que o Flutter mantém internamente e atualiza de forma seletiva. O mecanismo que evita reconstruções desnecessárias é a reconciliação: o Flutter compara o widget antigo com o novo e identifica o que mudou, mandando redesenhar apenas essa parte. No lab, quando _futureItens é atualizado via _recarregar() na ListaItensScreen, apenas aquela tela se reconstrói os ItemCard individuais só são recriados se seus dados mudaram, e widgets que permaneceram iguais são simplesmente reaproveitados da árvore anterior.
+
 ---
 
 ### Q3 — Flutter e o padrão MVC
