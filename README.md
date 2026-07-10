@@ -151,7 +151,7 @@ _Pontifícia Universidade Católica de Minas Gerais (PUC MINAS)_
 ---
 
 <div align="center">
-  <img width="70%" alt="pucminas" src="docs/imagens/banner-institucional.svg"/>
+  <img width="70%" alt="pucminas" src="image/banner-institucional.svg"/>
 </div>
 <p align="center">Fonte do banner: <a href="https://github.com/joaopauloaramuni">João Paulo Carneiro Aramuni</a></p>
 
